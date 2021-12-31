@@ -2,6 +2,7 @@ import { IgnorePlugin, ProgressPlugin } from 'webpack';
 import CaseSensitivePathsPlugin from 'case-sensitive-paths-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import BootStrapPlugin from '../features/mfsu/plugins/bootstrap';
 import config from '../utils/config';
 import { Options } from '../interfaces';
 
@@ -13,6 +14,7 @@ function getPlugins(opts: Options) {
       ? userConf.output.publicPath
       : '/';
   let plugins = [
+    new BootStrapPlugin(),
     new IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,

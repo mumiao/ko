@@ -6,3 +6,16 @@ export type Options = {
   analyzer?: boolean;
   esbuild?: boolean;
 };
+
+export type MFSU = {
+  name?: string;
+  lib?: string;
+};
+
+export interface PlainObject {
+  [key: string]: any;
+}
+
+export interface PlainObjectWithStringValue {
+  [key: string]: string;
+}

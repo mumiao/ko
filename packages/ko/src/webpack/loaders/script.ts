@@ -1,13 +1,18 @@
+import { join } from 'path';
 import getCacheIdentifier from 'react-dev-utils/getCacheIdentifier';
 import config from '../../utils/config';
+import { MF_NAME } from '../../features/mfsu/constants';
+import DepCollection from '../../features/mfsu/DepCollection';
+const DepCollectionInstance = DepCollection.getInstance();
 
 const THREAD_LOADER = require.resolve('thread-loader');
 const BABEL_LOADER = require.resolve('babel-loader');
 
 function getScriptLoaders(supportTypescript: boolean) {
+  const testReg = supportTypescript ? /\.(t|j)sx?$/ : /\.jsx?$/;
   const scriptLoader: any = [
     {
-      test: /\.jsx?$/,
+      test: testReg,
       include: config.defaultPaths.src,
       use: [
         THREAD_LOADER,
@@ -19,6 +24,26 @@ function getScriptLoaders(supportTypescript: boolean) {
                 require.resolve('babel-preset-ko-app'),
                 {
                   useAbsoluteRuntime: true,
+                },
+              ],
+            ],
+            plugins: [
+              [
+                join(
+                  __dirname,
+                  '../../features/mfsu/babel-plugin-mf-import/index.js'
+                ),
+                {
+                  remoteName: MF_NAME,
+                  webpackAlias: config.getWebpackAlias(supportTypescript),
+                  webpackExternals: config.webpackExternals,
+                  onMatch: (path: string, filepath: string) => {
+                    DepCollectionInstance.setDeps({
+                      path,
+                      filepath,
+                    });
+                    console.log('=======matched=======');
+                  },
                 },
               ],
             ],
@@ -36,24 +61,6 @@ function getScriptLoaders(supportTypescript: boolean) {
       ],
     },
   ];
-  if (supportTypescript) {
-    const TS_LOADER = require.resolve('ts-loader');
-    const typescriptLoader = {
-      test: /\.tsx?$/,
-      use: [
-        THREAD_LOADER,
-        {
-          loader: TS_LOADER,
-          options: {
-            transpileOnly: true,
-            happyPackMode: true,
-            allowTsInNodeModules: true,
-          },
-        },
-      ],
-    };
-    scriptLoader.push(typescriptLoader);
-  }
   return scriptLoader;
 }
 
